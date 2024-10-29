@@ -15,24 +15,6 @@
 
 int main(int argc, char *argv[]) {
   argparse::ArgumentParser program("convertk", "0.0.1");
-  // image img;
-  // unsigned char *imgData = stbi_load("image.png", &img.w, &img.h, &img.ch,
-  // 0); if (!imgData) {
-  //   std::cerr << "Failed to load image!" << std::endl;
-  //   return 1;
-  // }
-  // if (img.ch < 3) {
-  //   std::cerr << "Image must be full RGB!" << std::endl;
-  //   stbi_image_free(imgData);
-  //   return 1;
-  // }
-  // auto pixelVals = getPixelData(img.w, img.h, img.ch, imgData);
-
-  // convertToKimg("test.kimg", img.w, img.h, img.ch, imgData);
-
-  // stbi_image_free(imgData);
-  // return 0;
-  // argparse::ArgumentParser program("kconvert", "0.0.1");
 
   program.add_description("Convert Kimg files to other formats, like PNG.");
 
