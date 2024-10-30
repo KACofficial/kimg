@@ -18,7 +18,9 @@ int main(int argc, char *argv[]) {
 
   program.add_description("Convert Kimg files to other formats, like PNG.");
 
-  program.add_argument("source").help("The image file to convert from").required();
+  program.add_argument("source")
+      .help("The image file to convert from")
+      .required();
 
   program.add_argument("output")
       .help("The kimg file to output to")
@@ -37,7 +39,8 @@ int main(int argc, char *argv[]) {
 
   image img;
 
-  unsigned char *imgData = stbi_load(source.c_str(), &img.w, &img.h, &img.ch, 0);
+  unsigned char *imgData =
+      stbi_load(source.c_str(), &img.w, &img.h, &img.ch, 0);
 
   if (!imgData) {
     std::cerr << "Failed to load image!" << std::endl;
@@ -113,27 +116,67 @@ bool writeImage(const char *filename, int w, int h, int channels,
   return false;
 }
 
+// bool convertToKimg(const char *filename, int w, int h, int channels,
+//                    unsigned char *data) {
+//   Header KimgHeader;
+//   PixelData KimgPixels;
+//   Tribyte wBytes = convertIntToTribyte(w);
+//   Tribyte hBytes = convertIntToTribyte(h);
+//   std::get<0>(KimgHeader) = wBytes;
+//   std::get<1>(KimgHeader) = hBytes;
+
+//   for (int y = 0; y < h; y++) {
+//     for (int x = 0; x < w; x++) {
+//       unsigned char *pixel = data + (y * w + x) * channels;
+//       unsigned char r = pixel[0];
+//       unsigned char g = pixel[1];
+//       unsigned char b = pixel[2];
+
+//       KimgPixels.emplace_back(r, g, b);
+//     }
+//   }
+
+//   std::ofstream outputFile(filename, std::ios::binary);
+
+//   // Write the header
+//   outputFile.write(
+//       reinterpret_cast<const char *>(std::get<0>(KimgHeader).data()),
+//       std::get<0>(KimgHeader).size());
+//   outputFile.write(
+//       reinterpret_cast<const char *>(std::get<1>(KimgHeader).data()),
+//       std::get<1>(KimgHeader).size());
+
+//   // Write the pixels
+//   for (int y = 0; y < h; y++) {
+//     for (int x = 0; x < w; x++) {
+//       unsigned char *pixel = data + (y * w + x) * channels;
+//       outputFile.write(reinterpret_cast<const char *>(pixel), channels);
+//     }
+//   }
+
+//   outputFile.close();
+
+//   return true;
+// }
 bool convertToKimg(const char *filename, int w, int h, int channels,
                    unsigned char *data) {
+  if (channels < 3) {
+    std::cerr << "Image must have at least 3 channels (RGB)!" << std::endl;
+    return false;
+  }
+
   Header KimgHeader;
-  PixelData KimgPixels;
   Tribyte wBytes = convertIntToTribyte(w);
   Tribyte hBytes = convertIntToTribyte(h);
+
   std::get<0>(KimgHeader) = wBytes;
   std::get<1>(KimgHeader) = hBytes;
 
-  for (int y = 0; y < h; y++) {
-    for (int x = 0; x < w; x++) {
-      unsigned char *pixel = data + (y * w + x) * channels;
-      unsigned char r = pixel[0];
-      unsigned char g = pixel[1];
-      unsigned char b = pixel[2];
-
-      KimgPixels.emplace_back(r, g, b);
-    }
-  }
-
   std::ofstream outputFile(filename, std::ios::binary);
+  if (!outputFile) {
+    std::cerr << "Failed to open KIMG file for writing!" << std::endl;
+    return false;
+  }
 
   // Write the header
   outputFile.write(
@@ -143,16 +186,21 @@ bool convertToKimg(const char *filename, int w, int h, int channels,
       reinterpret_cast<const char *>(std::get<1>(KimgHeader).data()),
       std::get<1>(KimgHeader).size());
 
-  // Write the pixels
-  for (int y = 0; y < h; y++) {
-    for (int x = 0; x < w; x++) {
+  // Write the pixel data
+  for (int y = 0; y < h; ++y) {
+    for (int x = 0; x < w; ++x) {
       unsigned char *pixel = data + (y * w + x) * channels;
-      outputFile.write(reinterpret_cast<const char *>(pixel), channels);
+      // Only write RGB (3 channels)
+      if (channels >= 3) {
+        outputFile.write(reinterpret_cast<const char *>(pixel),
+                         3); // Only writing RGB
+      } else {
+          std::cout << "Failed writing: (" << x << ", " << y << ")" << std::endl;
+      }
     }
   }
 
   outputFile.close();
-
   return true;
 }
 Tribyte convertIntToTribyte(int value) {
