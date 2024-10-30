@@ -1,5 +1,5 @@
 # Kimg converter
-This is a toolkit for converting Image's to my own custom image format Kimg. and from Kimg to PNG
+This is a toolkit for converting image's to my own custom image format Kimg. and from Kimg to PNG
 
 
 ## Structure
