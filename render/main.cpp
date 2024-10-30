@@ -2,10 +2,8 @@
 #include <fstream>
 #include <vector>
 #include <tuple>
-#include <array>
 #include <stdexcept>
 #include <cstdio>
-#include <cstdint>
 #include <argparse/argparse.hpp>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
